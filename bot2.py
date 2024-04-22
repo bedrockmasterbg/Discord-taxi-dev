@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands # this for the bot to be able to work
 from dotenv import load_dotenv
 import os # os imorted because its needed here
-#import logging # loggin is unsed library for now 
 
 
 
@@ -10,7 +9,7 @@ import os # os imorted because its needed here
 load_dotenv()
 token =  os.getenv('DISCORD_TOKEN')
 
-intents = discord.Intents.all()
+intents = discord.Intents.all() # this intents can be changed in release state because of dangerous actions possible
 
 
 client = commands.Bot(command_prefix = '!', intents=intents)
