@@ -16,8 +16,6 @@ service_fee = 0.05
 call_fee = 1.40
 
 
-
-
 load_dotenv()
 token =  os.getenv('DISCORD_TOKEN')
 
@@ -44,14 +42,12 @@ async def new_client(ctx):
 async def new_driver(ctx):
     await ctx.send ('**To register as  driver you need to pass our driver verify process!!!**')
 
-
 @client.command()
 async def new_server_mc(ctx):
      api.servers.create_server(name='PaperServerCreated by BOt', user_id=1, nest_id=4,
                           egg_id=3, memory_limit=8000, swap_limit=0,
                           backup_limit=0, disk_limit=10240, location_ids=[1])
         await ctx.send ('the server has been created')
-
 
 @client.command()
 async def new_server_ets2(ctx):
@@ -78,9 +74,5 @@ async def prices(ctx):
 
 if token == None:
     print('you dont have a token in the env FILE')
-
-
-
-
 
 client.run(token)
