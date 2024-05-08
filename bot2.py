@@ -5,7 +5,7 @@ from  dotenv import load_dotenv
 import aiohttp, math, time
 
 load_dotenv()
-token = os.getnev('DISCORD_TOKEN')
+token = os.getenv('DISCORD_TOKEN')
 google_maps_key = os.getenv('google_maps_api_key')
 intents = discord.Intents.all() # used for development only
 #intents = discord.Intents.defalt() # will be used in production
@@ -125,7 +125,10 @@ async def new_order(ctx):
     await ctx.send(f'Your order has been placed. The total price for the trip is ${total:.2f} and the total distance is {distance:.2f} km')
 
 
+#
+if token is None:
+    print("Token is missing")
+else:
+    print('Token is available')
 
-
-o
 client.run(token)   
