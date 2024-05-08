@@ -5,7 +5,7 @@ from  dotenv import load_dotenv
 import aiohttp, math, time
 
 load_dotenv()
-
+token = os.getnev('DISCORD_TOKEN')
 google_maps_key = os.getenv('google_maps_api_key')
 intents = discord.Intents.all() # used for development only
 #intents = discord.Intents.defalt() # will be used in production
@@ -127,5 +127,5 @@ async def new_order(ctx):
 
 
 
-
-client.run(os.getenv('DISCORD_TOKEN'))  # Assuming your Discord token is stored in an environment variable named 'DISCORD_TOKEN'`
+o
+client.run(token)   
