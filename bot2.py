@@ -7,7 +7,7 @@ import os # os imorted because its needed here
 
 
 api = PterodactylClient('debug','anything')
-PterodactylClient('https://testpanel.hostfab.xyz','ptla_RjxxAYnChicvD3tLeGArnvlOMLu17EITOFLKzIwM7VH')
+#Removed pterotoken and url
 
 #DEFINING PRICES for our taxi service
 fare_rate = 0.83 
