@@ -125,7 +125,7 @@ async def new_order(ctx):
     await ctx.send(f'Your order has been placed. The total price for the trip is ${total:.2f} and the total distance is {distance:.2f} km')
 
 
-#
+# develping checking
 if token is None:
     print("Token is missing")
 else:
