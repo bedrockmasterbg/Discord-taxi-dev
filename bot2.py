@@ -1,78 +1,131 @@
 import discord
-from pydactyl import PterodactylClient
-from discord.ext import commands # this for the bot to be able to work
-from dotenv import load_dotenv
-import os # os imorted because its needed here
-#import logging # loggin is unsed library for now 
-
-
-api = PterodactylClient('debug','anything')
-#Removed pterotoken and url
-
-#DEFINING PRICES for our taxi service
-fare_rate = 0.83 
-idle_fee = 0.39
-service_fee = 0.05
-call_fee = 1.40
-
+import os
+from discord.ext import commands
+from  dotenv import load_dotenv
+import aiohttp, math, time
 
 load_dotenv()
-token =  os.getenv('DISCORD_TOKEN')
 
-intents = discord.Intents.all()
-
-
-client = commands.Bot(command_prefix = '!', intents=intents)
+google_maps_key = os.getenv('google_maps_api_key')
+intents = discord.Intents.all() # used for development only
+#intents = discord.Intents.defalt() # will be used in production
+#intents.messages = True # will be used in production
+client = commands.Bot(command_prefix='!', intents=intents)
+idle_fee = 0.39  # Define your idle fee here
+service_fee = 0.139  # Define your service fee here
+call_fee = 1.0  # Define your call fee here
 
 @client.event
 async def on_ready():
     print('Bot is ready')
 
+@client.command()
+async def simeon(ctx):
+    await ctx.send('Doveri mi se')
+
 
 @client.command()
 async def hello(ctx):
-    await ctx.send('Hello, world! We are bot in developoment witch will be dynamicaly changed and growning with the communtiy')
+    await ctx.send('Hello! this bot is for a taxi service. You can use the following commands: \n')
+@client.command()
+async def ping(ctx):
+    await ctx.send(f'Pong! {round(client.latency * 1000)}ms')
+@client.command()
+async def price(ctx, distance: float):
+    fare_rate = 0.83  # Define your fare rate here
+    idle_fee = 0.39  # Define your idle fee here
+    service_fee = 0.139  # Define your service fee here
+    call_fee = 1.0  # Define your call fee here
+    fare = distance * fare_rate
+    total = fare + idle_fee + service_fee + call_fee
+    await ctx.send(f'The total price for the trip is ${total:.2f}')
+
+# ... rest of your commands ...
+@client.command()
+async def service(ctx):
+  await ctx.send("The service is running")
 
 @client.command()
-async def new_client(ctx):
-    await ctx.send('The website is not build at the moment ')
+@commands.has_any_role('Admin', 'Moderator', 'Server Supporter')
+async def register_client(ctx):
+
+    await ctx.send("Please provide your name, email and phone number")
+    def check(m):
+        return m.author == ctx.author and m.channel == ctx.channel
+
+    msg = await client.wait_for('message', check=check)
+
+    owner = ctx.guild.owner
+    await owner.send(f"New client registration:\n{msg.content}")
 
 
 @client.command()
-async def new_driver(ctx):
-    await ctx.send ('**To register as  driver you need to pass our driver verify process!!!**')
+async def register_driver(ctx):
+    await ctx.send("Please provide your name, phone number, and email address")
+
+    def check(m):
+        return m.author == ctx.author and m.channel == ctx.channel
+
+    msg = await client.wait_for('message', check=check)
+
+    owner = ctx.guild.owner
+    await owner.send(f"New driver registration:\n{msg.content}")
 
 @client.command()
-async def new_server_mc(ctx):
-     api.servers.create_server(name='PaperServerCreated by BOt', user_id=1, nest_id=4,
-                          egg_id=3, memory_limit=8000, swap_limit=0,
-                          backup_limit=0, disk_limit=10240, location_ids=[1])
-        await ctx.send ('the server has been created')
+@commands.has_any_role('Admin', 'Moderator', 'Server Supporter')
+async def register_vehicle(ctx):
+    await ctx.send("Please provide your vehicle type, plate number, and color")
+
+    def check(m):
+        return m.author == ctx.author and m.channel == ctx.channel
+    owner = ctx.guild.owner
+    msg = await client.wait_for('message', check=check)
+    await owner.send(f"New vehicle registration:\n{msg.content}")
+
 
 @client.command()
-async def new_server_ets2(ctx):
-    api.servers.create_server(name='My Paper Server', user_id=1, nest_id=4,
-                          egg_id=3, memory_limit=8000, swap_limit=0,
-                          backup_limit=0, disk_limit=10240, location_ids=[1])
-    await ctx.send ('Congrats you created a server')
+async def наргиле(ctx):
+    await ctx.send("Аре флейм брат!")
 
 @client.command()
-async def invoice(ctx):
-    await ctx.send ('if you want to be registered in our invoice system mail us at orders@hostfab.xyz ')
+async def blocking(ctx):
+    await ctx.send("блокинга си е в действието")
+@commands.has_any_role('Admin', 'Moderator', 'Server Supporter')
+async def shefkata(ctx):
+    await ctx.send("Вързан без крака аха")
 
 @client.command()
-async def page_info(ctx):
-    await ctx.send ('our status page is: http://testnode.hostfab.xyz:3001/status/status ')  
+@commands.cooldown(1, 600, commands.BucketType.user) # this cooldown is used for not allowing users to spam google maps api 
+@commands.has_any_role('Admin', 'Moderator',) #this 
+async def new_order(ctx):
+    await ctx.send("Please provide your pickup location")
 
-@client.command()
-async def prices(ctx):
-    await ctx.send(f'our prices are our fare rate is : {fare_rate},Idle fee is :{idle_fee},Service fee:{service_fee},Call fee is :{call_fee} please remind the driver to tell you what is the total in the end')
-#client.add_command(test) ## ddeperecated
+    def check(m):
+        return m.author == ctx.author and m.channel == ctx.channel
+
+    pickup_msg = await client.wait_for('message', check=check)
+
+    await ctx.send("Please provide your dropoff location")
+    dropoff_msg = await client.wait_for('message', check=check)
+
+    # Calculate distance between pickup and dropoff locations
+    async with aiohttp.ClientSession() as session:
+        params = {
+            'origins': pickup_msg.content,
+            'destinations': dropoff_msg.content,
+            'key': google_maps_key
+        }
+        async with session.get('https://maps.googleapis.com/maps/api/distancematrix/json', params=params) as resp:
+            data = await resp.json()
+            distance = data['rows'][0]['elements'][0]['distance']['value'] / 1000  # Convert meters to kilometers
+
+    fare_rate = 1.0  # Define your fare rate here
+    fare = distance * fare_rate
+    total = fare + idle_fee + service_fee + call_fee
+    await ctx.send(f'Your order has been placed. The total price for the trip is ${total:.2f} and the total distance is {distance:.2f} km')
 
 
 
 
-if token == None:
-    print('you dont have a token in the env FILE')
 
-client.run(token)
+client.run(os.getenv('DISCORD_TOKEN'))  # Assuming your Discord token is stored in an environment variable named 'DISCORD_TOKEN'`
