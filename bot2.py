@@ -95,7 +95,7 @@ async def shefkata(ctx):
     await ctx.send("Вързан без крака аха")
 
 @client.command()
-@commands.cooldown(1, 600, commands.BucketType.user) # this cooldown is used for not allowing users to spam google maps api 
+@commands.cooldown(1, 6000, commands.BucketType.user) # this cooldown is used for not allowing users to spam google maps api 
 @commands.has_any_role('Admin', 'Moderator',) #this 
 async def new_order(ctx):
     await ctx.send("Please provide your pickup location")
