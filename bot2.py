@@ -2,8 +2,7 @@ import discord
 import os
 from discord.ext import commands
 from  dotenv import load_dotenv
-import aiohttp, math, time
-
+import math, time, requests
 load_dotenv()
 token = os.getenv('DISCORD_TOKEN')
 google_maps_key = os.getenv('google_maps_api_key')
@@ -94,8 +93,8 @@ async def shefkata(ctx):
     await ctx.send("Вързан без крака аха")
 
 @client.command()
-@commands.cooldown(1, 6, commands.BucketType.user) # this cooldown is used for not allowing users to spam google maps api 
-@commands.has_any_role('Admin', 'Moderator',) #this 
+# @commands.cooldown(1, 6, commands.BucketType.user) # this cooldown is used for not allowing users to spam google maps api 
+@commands.has_any_role('Admin', 'Moderator','Server Supporter',) #this 
 async def new_order(ctx):
     await ctx.send("Please provide your pickup location")
 
@@ -108,20 +107,34 @@ async def new_order(ctx):
     dropoff_msg = await client.wait_for('message', check=check)
 
     # Calculate distance between pickup and dropoff locations
-    async with aiohttp.ClientSession() as session:
-        params = {
-            'origins': pickup_msg.content,
-            'destinations': dropoff_msg.content,
-            'key': google_maps_key
-        }
-        async with session.get('https://maps.googleapis.com/maps/api/distancematrix/json', params=params) as resp:
-            data = await resp.json()
-            distance = data['rows'][0]['elements'][0]['distance']['value'] / 1000  # Convert meters to kilometers
+    response = requests.get("https://maps.googleapis.com/maps/api/distancematrix/json", params={
+        'origins': pickup_msg.content,
+        'destinations': dropoff_msg.content,
+        'key': google_maps_key
+    })
+    response_json = response.json()
+    print(response.text)
 
-    fare_rate = 1.49  # Define your fare rate here
+    if len(response_json['destination_addresses'][0]) == 0:
+        await ctx.send("Invalid drop-off address")
+        return True
+    elif len(response_json['origin_addresses'][0]) ==  0:
+        await ctx.send("Invalid pickup address")
+        return True
+
+    distance = response_json['rows'][0]['elements'][0]['distance']['value'] / 1000  # Convert meters to kilometers
+
+
+    fare_rate = 1.49  
     fare = distance * fare_rate
     total = fare + idle_fee + service_fee + call_fee
-    await ctx.send(f'Your order has been placed. The total price for the trip is ${total:.2f} and the total distance is {distance:.2f} km')
+    await ctx.send(f'Will drive from\n{response_json["origin_addresses"][0]}\nto\n{response_json["destination_addresses"][0]}')
+    await ctx.send(f'Your order has been placed. The total price for the trip is **${total:.2f}** and the total distance is **{distance:.2f}** km')
+
+
+
+@client.command()
+
 
 
 # dev  check
