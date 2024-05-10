@@ -18,7 +18,6 @@ call_fee = 1.40
 
 load_dotenv()
 token =  os.getenv('DISCORD_TOKEN')
-
 intents = discord.Intents.all()
 
 
@@ -44,10 +43,10 @@ async def new_driver(ctx):
 
 @client.command()
 async def new_server_mc(ctx):
-     api.servers.create_server(name='PaperServerCreated by BOt', user_id=1, nest_id=4,
+    api.servers.create_server(name='PaperServerCreated by BOt', user_id=1, nest_id=4,
                           egg_id=3, memory_limit=8000, swap_limit=0,
                           backup_limit=0, disk_limit=10240, location_ids=[1])
-        await ctx.send ('the server has been created')
+    await ctx.send ('the server has been created')
 
 @client.command()
 async def new_server_ets2(ctx):
