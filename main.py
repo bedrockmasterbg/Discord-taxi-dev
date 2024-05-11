@@ -1,5 +1,3 @@
-import discord, requests
-from discord.ext import commands
 from fees import *
 from helper import *
 
@@ -10,9 +8,18 @@ class Taxi_Bot:
         self.client = commands.Bot(
             command_prefix='!',
             intents=self.intents
-        )
-
+        )    
         self.functions()
+
+    
+    def send_email(self, recipient, subject, message):
+        server = smtplib.SMTP('mail.hostfab.xyz', 587)
+        server.starttls()
+        server.login(envs['EMAIL_ADDRESS'], envs['EMAIL_PASSWORD'])
+
+        msg = f'Subject: {subject}\n\n{message}'
+        server.sendmail(envs['EMAIL_ADDRESS'], recipient, msg)
+        server.quit()
 
 
     def get_google_maps_params(self, pickup, dropoff):
@@ -151,7 +158,21 @@ Could not process your taxi order with the requested addresses. Try again with m
 '''
 
                 await ctx.send(fail_msg)
+        
 
+        @self.client.command()
+        @commands.has_any_role('Owner', 'Admin', 'Moderator', 'Server Supporter')
+        async def timeout(ctx, seconds):
+            await ctx.send(f'Timeout set to {seconds} seconds')
+            await asyncio.sleep(int(seconds))
+            await ctx.send('Timeout completed')
 
+        @self.client.command()
+        @commands.has_any_role('Owner', 'Admin', 'Moderator', 'Server Supporter')
+        async def status(ctx):
+            await ctx.send(f'[Open status page]({status_page_url})')
+            
+            
+            
 bot = Taxi_Bot()
 bot.client.run(token=envs['DISCORD_TOKEN'])
