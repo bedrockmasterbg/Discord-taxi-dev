@@ -173,6 +173,8 @@ Could not process your taxi order with the requested addresses. Try again with m
             await ctx.send(f'[Open status page]({status_page_url})')
             
             
+
+  
             
 bot = Taxi_Bot()
 bot.client.run(token=envs['DISCORD_TOKEN'])
