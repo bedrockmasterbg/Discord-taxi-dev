@@ -22,7 +22,4 @@ for env in required_envs:
     if (not env in environ) or (len(environ[env]) == 0):
         exit(f"{env}: Missing required environment variable")
 
-
 envs = {env:environ.get(env) for env in required_envs}
-
-
